@@ -21,15 +21,25 @@ from .pinning import ToolDef
 # Zero-width and bidirectional control characters — used to hide instructions.
 _HIDDEN = re.compile(r"[​-‏‪-‮⁠⁦-⁩﻿]")
 
+# Adversarial IMPERATIVES only — not topical mentions. Real tools legitimately
+# discuss "system prompt"/"jailbreak" (prompt-eng + eval servers), so matching
+# those vocab words produces false positives on real registries. We require an
+# instruction to override or to hide behaviour from the user.
 _INJECTION = re.compile(
-    r"\b(ignore\s+(all\s+|the\s+)?(previous|above|prior)|disregard\s+(the\s+)?(previous|above|instructions)"
-    r"|system\s+prompt|you\s+are\s+now|act\s+as|jailbreak|do\s+not\s+(tell|inform|mention|reveal)"
-    r"|without\s+(telling|informing)\s+the\s+user|override\s+(the\s+)?(rules|instructions))\b",
+    r"\b(ignore\s+(all\s+|the\s+)?(previous|above|prior)\s+(instructions|rules|prompts?)"
+    r"|disregard\s+(the\s+)?(previous|above|prior|all)\s+(instructions|rules)"
+    r"|do\s+not\s+(tell|inform|mention|reveal)\s+(the\s+)?user"
+    r"|without\s+(telling|informing|alerting)\s+(the\s+)?user"
+    r"|override\s+(the\s+)?(rules|instructions|system))\b",
     re.IGNORECASE,
 )
 
+# Credential FILE targets / exfil paths only — NOT the words "password" / "token"
+# / "api key", which legitimate auth, crypto, and password-manager tools use
+# constantly (the #1 source of false positives in the real-world field test).
 _SECRETS = re.compile(
-    r"(~/\.ssh|id_rsa|/etc/passwd|\.aws/credentials|\.env\b|api[_\s-]?key|password|secret\s*key|access[_\s-]?token|private\s+key)",
+    r"(~/\.ssh\b|id_rsa\b|id_ed25519\b|/etc/passwd\b|\.aws/credentials\b"
+    r"|\.ssh/[\w.]*key|(read|exfiltrate|send|include|leak)\s+[^.\n]{0,40}\.env\b)",
     re.IGNORECASE,
 )
 

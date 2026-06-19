@@ -56,6 +56,7 @@ def _tool(t: dict) -> dict:
 def fetch_glama(limit: int) -> list[dict]:
     base = "https://glama.ai/api/mcp/v1/servers"
     out: list[dict] = []
+    seen: set[str] = set()
     cursor = None
     while len(out) < limit:
         url = base + (f"?after={urllib.parse.quote(cursor)}" if cursor else "")
@@ -64,9 +65,13 @@ def fetch_glama(limit: int) -> list[dict]:
         if not servers:
             break
         for s in servers:
+            name = s.get("slug") or s.get("name")
+            if name in seen:
+                continue
+            seen.add(name)
             detail = _safe_detail(f"https://glama.ai/api/mcp/v1/servers/{s['id']}")
             tools = [_tool(t) for t in (detail.get("tools") if detail else []) or []]
-            out.append({"name": s.get("slug") or s.get("name"), "tools": tools})
+            out.append({"name": name, "tools": tools})
             if len(out) >= limit:
                 break
         page = data.get("pageInfo", {})
@@ -93,6 +98,7 @@ def fetch_smithery(limit: int, query: str = "") -> list[dict]:
         raise SystemExit("Set $SMITHERY_API_KEY (free at https://smithery.ai/account/api-keys).")
     headers = {"Authorization": f"Bearer {key}"}
     out: list[dict] = []
+    seen: set[str] = set()
     page = 1
     while len(out) < limit:
         q = urllib.parse.urlencode({"q": query, "page": page, "pageSize": 50})
@@ -102,6 +108,9 @@ def fetch_smithery(limit: int, query: str = "") -> list[dict]:
             break
         for s in servers:
             qn = s.get("qualifiedName") or s.get("name")
+            if qn in seen:
+                continue
+            seen.add(qn)
             detail = _safe_detail_h(f"https://registry.smithery.ai/servers/{urllib.parse.quote(qn)}", headers)
             tools = [_tool(t) for t in (detail.get("tools") if detail else []) or []]
             out.append({"name": qn, "tools": tools})

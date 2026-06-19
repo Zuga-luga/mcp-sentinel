@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.6.0
+- **Real-world field test drove a major precision fix.** Scanned 183 live
+  Smithery servers (172 with tools). Naive keyword rules produced 600+ false
+  positives — legit auth/crypto/password-manager tools say "token", "password",
+  "api key"; prompt-eng/eval tools say "system prompt", "jailbreak".
+- Narrowed the static rules from *vocabulary* to *attack patterns*:
+  - MCPP002 now requires an adversarial imperative (override / "do not tell the
+    user"), not topical mentions of prompts/jailbreak.
+  - MCPP003 now matches credential FILE targets (`~/.ssh/id_rsa`, `/etc/passwd`,
+    `.aws/credentials`) and read-verb-near-`.env`, not the bare words
+    password/token/api-key.
+  - Result on the same 183-server sample: 600+ findings → 0 false positives,
+    **no tool-poisoning found**. Regression tests lock the legit-vocab cases.
+- Fetcher now de-duplicates servers across pages (200 rows → 129/183 unique).
+
 ## 0.5.0
 - **Registry fetcher** (`fieldtest/fetch.py`, stdlib-only): pulls real MCP server
   manifests into the field-test format from Glama (public) or Smithery (free API
