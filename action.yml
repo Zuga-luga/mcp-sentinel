@@ -33,27 +33,36 @@ runs:
     - uses: actions/setup-python@v5
       with:
         python-version: "3.12"
-    - name: Install mcp-sentinel
-      shell: bash
-      run: pip install "${{ inputs.ref }}"
     - id: run
       shell: bash
+      env:
+        TOOLS: ${{ inputs.tools }}
+        LOCK: ${{ inputs.lock }}
+        CHAIN: ${{ inputs.chain }}
+        REF: ${{ inputs.ref }}
       run: |
         set -e
+        # Inputs are bound to env vars (never interpolated into the script) to
+        # prevent shell injection via attacker-controlled input values.
+        if ! [[ "$REF" =~ ^[A-Za-z0-9._@/:=+-]+$ ]]; then
+          echo "Refusing to install: 'ref' contains disallowed characters." >&2
+          exit 2
+        fi
+        pip install "$REF"
         status=0
-        if [ -n "${{ inputs.tools }}" ]; then
-          if [ -f "${{ inputs.lock }}" ]; then
+        if [ -n "$TOOLS" ]; then
+          if [ -f "$LOCK" ]; then
             echo "::group::Rug-pull / drift check"
-            sentinel verify "${{ inputs.tools }}" --lock "${{ inputs.lock }}" || status=1
+            sentinel verify "$TOOLS" --lock "$LOCK" || status=1
             echo "::endgroup::"
           else
-            echo "No lockfile at ${{ inputs.lock }} — pinning for the first time."
-            sentinel pin "${{ inputs.tools }}" --lock "${{ inputs.lock }}"
+            echo "No lockfile at $LOCK — pinning for the first time."
+            sentinel pin "$TOOLS" --lock "$LOCK"
           fi
         fi
-        if [ -n "${{ inputs.chain }}" ]; then
+        if [ -n "$CHAIN" ]; then
           echo "::group::Call-chain grade"
-          out=$(sentinel grade "${{ inputs.chain }}") || status=1
+          out=$(sentinel grade "$CHAIN") || status=1
           echo "$out"
           grade=$(echo "$out" | head -1 | sed -E 's/^GRADE ([A-F]).*/\1/')
           echo "grade=$grade" >> "$GITHUB_OUTPUT"
