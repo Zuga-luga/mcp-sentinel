@@ -88,8 +88,20 @@ sentinel scan manifest.json
 #   [HIGH  ] MCPP002  Tool 'add' description contains prompt-injection / override language.
 ```
 
-Run it across a whole registry export with `python fieldtest/run.py <servers.json>`
-→ writes `fieldtest/FINDINGS.md`.
+Pull **real** manifests from a registry and scan them:
+
+```sh
+# Smithery serves real tool definitions (free key: smithery.ai/account/api-keys)
+export SMITHERY_API_KEY=...
+python fieldtest/fetch.py --source smithery --limit 200 --out fieldtest/servers.smithery.json
+python fieldtest/run.py fieldtest/servers.smithery.json   # -> fieldtest/FINDINGS.md
+
+# Glama is public but returns empty tools[] for most servers (verified June 2026)
+python fieldtest/fetch.py --source glama --limit 200 --out fieldtest/servers.glama.json
+```
+
+Servers are never executed — the fetcher and scanner read published manifest JSON
+only, so this is safe to run across thousands of untrusted servers.
 
 ### 6. GitHub Action — one-line CI gate
 

@@ -11,3 +11,4 @@ venv/
 .coverage
 htmlcov/
 sentinel.lock
+fieldtest/servers.*.json

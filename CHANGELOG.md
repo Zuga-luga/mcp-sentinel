@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.0
+- **Registry fetcher** (`fieldtest/fetch.py`, stdlib-only): pulls real MCP server
+  manifests into the field-test format from Glama (public) or Smithery (free API
+  key). Smithery serves real tools[]+inputSchema; Glama's tools[] is empty for
+  most servers (documented). Verified live against both APIs. Servers are never
+  executed — manifest JSON only.
+
 ## 0.4.0
 - **Static manifest scanner** (`sentinel scan`, `mcp_sentinel.scan`): detects
   prompt-injection / tool-poisoning in published tool definitions without ever
