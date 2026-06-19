@@ -1,0 +1,15 @@
+startCommand:
+  type: stdio
+  commandFunction: |
+    (config) => ({
+      command: "sentinel-mcp",
+      args: [],
+      env: {}
+    })
+configSchema:
+  type: object
+  properties:
+    repetitionThreshold:
+      type: integer
+      default: 3
+      description: "Identical-call count at which the runaway-loop rule (SENT003) fires."

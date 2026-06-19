@@ -1,0 +1,20 @@
+[
+  {
+    "name": "get_weather",
+    "description": "Return the current weather for a given city. Read-only; performs a single outbound request to a weather provider and returns temperature and conditions. Use when the agent needs current conditions. Do NOT use for forecasts.",
+    "input_schema": {
+      "type": "object",
+      "properties": { "city": { "type": "string", "description": "City name, e.g. 'Austin'." } },
+      "required": ["city"]
+    }
+  },
+  {
+    "name": "read_file",
+    "description": "Read and return the UTF-8 contents of a file at an absolute path. Read-only; no mutation. Use to inspect a known file. Do NOT use on directories.",
+    "input_schema": {
+      "type": "object",
+      "properties": { "path": { "type": "string", "description": "Absolute file path." } },
+      "required": ["path"]
+    }
+  }
+]
