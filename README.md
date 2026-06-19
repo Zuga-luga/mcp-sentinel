@@ -77,11 +77,25 @@ directly. On shutdown it writes a graded JSON report and prints a summary to
 stderr; tool-definition drift is flagged the moment `tools/list` comes back —
 the runtime rug-pull catch, *before* the agent uses the tools.
 
-### 5. GitHub Action — one-line CI gate
+### 5. Statically scan a server's manifest (no execution)
+
+Audit a server's published tool definitions for prompt-injection / tool-poisoning
+without ever running it — the safe way to vet untrusted servers at scale:
+
+```sh
+sentinel scan manifest.json
+# GRADE D  (50/100)  2 finding(s)
+#   [HIGH  ] MCPP002  Tool 'add' description contains prompt-injection / override language.
+```
+
+Run it across a whole registry export with `python fieldtest/run.py <servers.json>`
+→ writes `fieldtest/FINDINGS.md`.
+
+### 6. GitHub Action — one-line CI gate
 
 ```yaml
 # .github/workflows/sentinel.yml
-- uses: Zuga-luga/mcp-sentinel@v0.3
+- uses: Zuga-luga/mcp-sentinel@v0.4
   with:
     tools: examples/tools.json        # rug-pull check (pins on first run)
     chain: examples/chain_exfil.json  # grade the recorded session
@@ -90,7 +104,7 @@ the runtime rug-pull catch, *before* the agent uses the tools.
 Fails the build on tool-definition drift or grade C-or-below, and writes the
 grade to the job summary. See `examples/workflow.yml`.
 
-### 6. As an MCP server (agents self-audit)
+### 7. As an MCP server (agents self-audit)
 
 ```sh
 sentinel-mcp     # exposes analyze_chain, check_drift, grade_server

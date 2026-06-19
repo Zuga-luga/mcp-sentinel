@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.0
+- **Static manifest scanner** (`sentinel scan`, `mcp_sentinel.scan`): detects
+  prompt-injection / tool-poisoning in published tool definitions without ever
+  running the server — hidden/bidi unicode (MCPP001), injection/override language
+  (MCPP002), secret/credential references (MCPP003), cross-tool steering
+  (MCPP004), embedded URLs (MCPP005).
+- **Field-test harness** (`fieldtest/run.py`): scans a set of server manifests
+  (registry-export shaped) and writes `fieldtest/FINDINGS.md`. Seed corpus of 12
+  representative servers; safe to point at real untrusted servers (text-only).
+
 ## 0.3.0
 - **Empirical benchmark**: `benchmark/dataset.py` (122 labeled scenarios —
   attacks, benign, evasion) + `benchmark/run.py` harness reporting

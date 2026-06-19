@@ -84,6 +84,17 @@ def cmd_analyze(args) -> int:
     return 1
 
 
+def cmd_scan(args) -> int:
+    from .scan import scan_manifest, tools_from_json
+
+    findings = scan_manifest(tools_from_json(_load(args.manifest)))
+    g = compute_grade(findings, [])
+    print(f"GRADE {g.letter}  ({g.score}/100)  {len(findings)} finding(s)")
+    for f in findings:
+        print(f"  [{f.severity.value.upper():6}] {f.rule_id}  {f.message}")
+    return 0 if g.passing else 1
+
+
 def cmd_proxy(args) -> int:
     from .proxy import StdioProxy
 
@@ -131,6 +142,10 @@ def build_parser() -> argparse.ArgumentParser:
     sa = sub.add_parser("analyze", help="run anomaly rules over a recorded call-chain")
     sa.add_argument("chain")
     sa.set_defaults(func=cmd_analyze)
+
+    sc = sub.add_parser("scan", help="statically scan a tool manifest for injection / tool-poisoning")
+    sc.add_argument("manifest", help="JSON array of tool definitions")
+    sc.set_defaults(func=cmd_scan)
 
     pr = sub.add_parser(
         "proxy",
