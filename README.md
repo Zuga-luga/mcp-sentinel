@@ -34,9 +34,15 @@ and flags any post-approval change.
 ## Install
 
 ```sh
-pip install mcp-sentinel          # zero-dependency core (CLI)
-pip install "mcp-sentinel[server]"  # + the MCP-server entrypoint
+pip install "git+https://github.com/Zuga-luga/mcp-sentinel@v0.7.0"            # zero-dependency core (CLI)
+pip install "git+https://github.com/Zuga-luga/mcp-sentinel@v0.7.0#egg=mcp-sentinel[server]"  # + the MCP-server entrypoint
 ```
+
+> **`pip install mcp-sentinel` (bare, from PyPI) is currently stuck on v0.1.0**
+> (uploaded 2026-02-12) — six releases behind and missing pinning, the proxy,
+> the static scanner, grading, and the GitHub Action entirely. The PyPI
+> account that owns the name is locked out pending recovery; use the git-tag
+> install above until that's resolved.
 
 ## Use
 
@@ -126,7 +132,7 @@ result. Full method, caveats, and reproduction: **[fieldtest/WRITEUP.md](fieldte
 
 ```yaml
 # .github/workflows/sentinel.yml
-- uses: Zuga-luga/mcp-sentinel@v0.4
+- uses: Zuga-luga/mcp-sentinel@v0.7.0
   with:
     tools: examples/tools.json        # rug-pull check (pins on first run)
     chain: examples/chain_exfil.json  # grade the recorded session
@@ -190,10 +196,11 @@ back to name/description heuristics when a server omits them — which most do.
 
 ## Status
 
-v0.4 — pinning, three call-chain anomaly rules, the static manifest scanner,
+v0.7.0 — pinning, three call-chain anomaly rules, the static manifest scanner,
 grading, CLI, MCP-server interface, transparent stdio proxy, GitHub Action, an
-empirical benchmark, and a field-test harness are all implemented and tested
-(26 tests, CI-gated metrics).
+empirical benchmark, and a field-test harness (183 live servers, 401 false
+positives eliminated) are all implemented and tested (31 tests, CI-gated
+metrics).
 
 Roadmap: defeat the XOR/encryption exfil evasion class (entropy + length
 heuristics), cross-server data-pivot and privilege-escalation rules, SARIF
